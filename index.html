@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shabby Bot 🤖</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #1e1e2f;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #ff4e88;
+      margin: 20px;
+      font-weight: 500;
+    }
+
+    #chatbox {
+      width: 90%;
+      max-width: 500px;
+      height: 65vh;
+      background-color: #2c2c3f;
+      border-radius: 12px;
+      padding: 15px;
+      overflow-y: auto;
+      box-shadow: 0 0 15px rgba(255, 78, 136, 0.3);
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 12px;
+    }
+
+    .bot {
+      justify-content: flex-start;
+    }
+
+    .user {
+      justify-content: flex-end;
+    }
+
+    .text {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      line-height: 1.4;
+    }
+
+    .bot .text {
+      background: #ff4e88;
+      color: #fff;
+      border-radius: 14px 14px 14px 4px;
+    }
+
+    .user .text {
+      background: #444;
+      color: #fff;
+      border-radius: 14px 14px 4px 14px;
+    }
+
+    #inputArea {
+      width: 90%;
+      max-width: 500px;
+      display: flex;
+      margin-top: 15px;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      font-size: 16px;
+      outline: none;
+      background: #333;
+      color: white;
+    }
+
+    #sendBtn {
+      padding: 0 20px;
+      background: #ff4e88;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+    }
+
+    #sendBtn:hover {
+      background: #e63e76;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Shabby Bot 🤖</h1>
+  <div id="chatbox"></div>
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Type something..." autocomplete="off" />
+    <button id="sendBtn">Send</button>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    let responses = [];
+
+    async function loadResponses() {
+      try {
+        const res = await fetch('responses.json');
+        const data = await res.json();
+        responses = data.responses;
+        fallbackReply = data.fallback || "I'm lost 😵";
+      } catch (error) {
+        console.error("Error loading JSON:", error);
+        responses = [];
+        fallbackReply = "Something broke. Probably my fault 😭";
+      }
+    }
+
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      const textSpan = document.createElement('div');
+      textSpan.className = 'text';
+      textSpan.textContent = text;
+      msgDiv.appendChild(textSpan);
+      chatbox.appendChild(msgDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function findResponse(input) {
+      const lower = input.toLowerCase();
+      for (const pair of responses) {
+        for (const kw of pair.keywords) {
+          if (lower.includes(kw)) {
+            return pair.reply;
+          }
+        }
+      }
+      return fallbackReply;
+    }
+
+    async function handleUserInput() {
+      const inputText = userInput.value.trim();
+      if (!inputText) return;
+
+      addMessage(inputText, 'user');
+      userInput.value = '';
+      const reply = findResponse(inputText);
+      setTimeout(() => {
+        addMessage(reply, 'bot');
+      }, 500);
+    }
+
+    sendBtn.addEventListener('click', handleUserInput);
+    userInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleUserInput();
+    });
+
+    window.onload = async () => {
+      await loadResponses();
+      addMessage("Hey, I'm Shabby 🤖. Talk to me... or roast me... I'm used to it 😅", "bot");
+    };
+  </script>
+
+</body>
+</html>
