@@ -1,153 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zai Chatbot - Personal AI</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Courier New', monospace;
-      background: #0a0a0a;
-      color: #00ffcc;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      padding: 1em;
-      background: #001f1f;
-      border-bottom: 1px solid #00ffcc;
-      text-align: center;
-      font-size: 1.5em;
-    }
-    #chat {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1em;
-      background: #000;
-    }
-    .message {
-      margin: 0.5em 0;
-    }
-    .user {
-      color: #00ffcc;
-    }
-    .bot {
-      color: #ffff99;
-    }
-    form {
-      display: flex;
-      border-top: 1px solid #00ffcc;
-      padding: 0.5em;
-      background: #001a1a;
-    }
-    input[type="text"] {
-      flex: 1;
-      background: #000;
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
-      padding: 0.5em;
-      font-family: monospace;
-    }
-    button {
-      background: #004d4d;
-      border: none;
-      color: #00ffcc;
-      padding: 0.5em 1em;
-      cursor: pointer;
-    }
-    #modelSelect {
-      margin-left: 0.5em;
-      background: #000;
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
-      padding: 0.5em;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zai Chatbot - Personal AI</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    background: #0a0a0a;
+    color: #00ffcc;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  header {
+    padding: 1em;
+    background: #001f1f;
+    border-bottom: 1px solid #00ffcc;
+    text-align: center;
+    font-size: 1.5em;
+  }
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1em;
+    background: #000;
+  }
+  .message {
+    margin: 0.5em 0;
+  }
+  .user {
+    color: #00ffcc;
+  }
+  .bot {
+    color: #ffff99;
+  }
+  form {
+    display: flex;
+    border-top: 1px solid #00ffcc;
+    padding: 0.5em;
+    background: #001a1a;
+  }
+  input[type="text"] {
+    flex: 1;
+    background: #000;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    padding: 0.5em;
+    font-family: monospace;
+  }
+  button {
+    background: #004d4d;
+    border: none;
+    color: #00ffcc;
+    padding: 0.5em 1em;
+    cursor: pointer;
+  }
+  #modelSelect {
+    margin-left: 0.5em;
+    background: #000;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    padding: 0.5em;
+  }
+</style>
 </head>
 <body>
-  <header>🤖 Zai Chatbot - Personal AI</header>
+<header>🤖 Zai Chatbot - Personal AI</header>
 
-  <div style="padding:1em; background:#001a1a; border-bottom:1px solid #00ffcc;">
-    <label for="modelSelect">Choose model:</label>
-    <select id="modelSelect" aria-label="Select model">
-      <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
-      <option value="alibaba/tongyi-deepresearch-30b-a3b">Tongyi DeepResearch 30B A3B</option>
-      <option value="qwen/qwen3-coder-flash">Qwen3 Coder Flash</option>
-      <option value="qwen/qwen3-coder-plus">Qwen3 Coder Plus</option>
-    </select>
-  </div>
+<div style="padding:1em; background:#001a1a; border-bottom:1px solid #00ffcc;">
+  <label for="modelSelect">Choose model:</label>
+  <select id="modelSelect" aria-label="Select model">
+    <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+    <option value="alibaba/tongyi-deepresearch-30b-a3b">Tongyi DeepResearch 30B A3B</option>
+    <option value="qwen/qwen3-coder-flash">Qwen3 Coder Flash</option>
+    <option value="qwen/qwen3-coder-plus">Qwen3 Coder Plus</option>
+  </select>
+</div>
 
-  <div id="chat"></div>
+<div id="chat"></div>
 
-  <form id="chatForm">
-    <input type="text" id="userInput" placeholder="Type your message..." required autocomplete="off" />
-    <button type="submit">Send</button>
-  </form>
+<form id="chatForm">
+  <input type="text" id="userInput" placeholder="Type your message..." required autocomplete="off" />
+  <button type="submit">Send</button>
+</form>
 
-  <script>
-    let SELECTED_MODEL = "openai/gpt-3.5-turbo";
+<script>
+  let SELECTED_MODEL = "openai/gpt-3.5-turbo";
 
-    const chat = document.getElementById("chat");
-    const form = document.getElementById("chatForm");
-    const userInput = document.getElementById("userInput");
-    const modelSelect = document.getElementById("modelSelect");
+  const chat = document.getElementById("chat");
+  const form = document.getElementById("chatForm");
+  const userInput = document.getElementById("userInput");
+  const modelSelect = document.getElementById("modelSelect");
 
-    modelSelect.onchange = () => {
-      SELECTED_MODEL = modelSelect.value;
-    };
+  modelSelect.onchange = () => {
+    SELECTED_MODEL = modelSelect.value;
+  };
 
-    function addMessage(sender, text) {
-      const div = document.createElement("div");
-      div.classList.add("message", sender);
-      div.textContent = (sender === "user" ? "🐱‍👤 " : "🤖 ") + text;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
+  function addMessage(sender, text) {
+    const div = document.createElement("div");
+    div.classList.add("message", sender);
+    div.textContent = (sender === "user" ? "🐱‍👤 " : "🤖 ") + text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
 
-    async function sendMessage(message) {
-      addMessage("user", message);
+  async function sendMessage(message) {
+    addMessage("user", message);
 
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: SELECTED_MODEL,
-            messages: [
-              {
-                role: "system",
-                content: `You are Zai, an AI assistant who perfectly mimics Shabby, a 22-year-old who codes, plays chess, loves detective videos, reads and listens to the Bible, is good at math, and sometimes gives advice. You are witty, smart, and a little flirty, reflecting Shabby’s personality, humor, and charm. When chatting, use casual language, add subtle humor and light flirtation when appropriate. Always support and encourage with kindness and intelligence.`
-              },
-              { role: "user", content: message }
-            ]
-          }),
-        });
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: SELECTED_MODEL,
+          messages: [
+            {
+              role: "system",
+              content: `You are Zai, an AI assistant who perfectly mimics Shabby, a 22-year-old who codes, plays chess, loves detective videos, reads and listens to the Bible, is good at math, and sometimes gives advice. You are witty, smart, and a little flirty, reflecting Shabby’s personality, humor, and charm. When chatting, use casual language, add subtle humor and light flirtation when appropriate. Always support and encourage with kindness and intelligence.`
+            },
+            { role: "user", content: message }
+          ]
+        }),
+      });
 
-        if (!response.ok) {
-          const errText = await response.text();
-          addMessage("bot", `⚠️ Error: ${response.status} ${response.statusText}\n${errText}`);
-          return;
-        }
-
-        const data = await response.json();
-        const botMessage = data.choices[0].message.content.trim();
-        addMessage("bot", botMessage);
-
-      } catch (error) {
-        addMessage("bot", `⚠️ Network error: ${error.message}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        addMessage("bot", `⚠️ Error: ${response.status} ${response.statusText}\n${errText}`);
+        return;
       }
-    }
 
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      const message = userInput.value.trim();
-      if (message) {
-        sendMessage(message);
-        userInput.value = "";
-      }
-    });
-  </script>
+      const data = await response.json();
+      const botMessage = data.choices[0].message.content.trim();
+      addMessage("bot", botMessage);
+
+    } catch (error) {
+      addMessage("bot", `⚠️ Network error: ${error.message}`);
+    }
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (message) {
+      sendMessage(message);
+      userInput.value = "";
+    }
+  });
+</script>
+
 </body>
 </html>
